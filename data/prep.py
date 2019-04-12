@@ -2,6 +2,15 @@ import os
 import pandas as pd
 import numpy as np
 
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OrdinalEncoder
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import CategoricalEncoder
+from sklearn.pipeline import FeatureUnion
+from sklearn.base import BaseEstimator, TransformerMixin
+
 TITANIC_PATH = os.path.join("raw", "titanic")
 
 def load_titanic_data(titanic_path=TITANIC_PATH):
@@ -23,9 +32,41 @@ def split_train_test(data, test_ratio):
 
 train_set, test_set = split_train_test(titanic, 0.2)
 
-#Sex was a string value, numerize to better fit with network
-titanic_cat = titanic["Sex"]
-titanic_cat_encoded, titanic_cat = titanic_cat.factorize()
-titanic_mod = titanic
-titanic_mod["Sex"] = titanic_cat_encoded
-titanic_mod["Sex"].value_counts()
+#============================================================
+#Start cleaning test data
+
+class DataFrameSelector(BaseEstimator, TransformerMixin):
+    def __init__(self, attribute_names):
+        self.attribute_names=attribute_names
+    def fit(self, X, y=None):
+        return self
+    def transform(self, X):
+        return X[self.attribute_names].values
+
+num_attribs = ["Pclass", "Age", "SibSp", "Parch", "Fare"]
+cat_attribs = ["Sex", "Embarked"]
+
+train_set_pre = train_set.copy()
+train_set_pre["Sex"] = pd.get_dummies(train_set["Sex"])
+train_set_pre["Embarked"] = pd.get_dummies(train_set["Embarked"])
+train_set_pre["Embarked"]
+
+num_pipeline = Pipeline([
+    ('selector', DataFrameSelector(num_attribs)),
+    ('imputer', SimpleImputer(missing_values=np.nan,strategy="median")),
+    ('std_scaler', StandardScaler())
+])
+
+cat_pipeline = Pipeline([
+    ('selector', DataFrameSelector(cat_attribs)),
+    ('cat_encoder', OneHotEncoder()),
+])
+
+full_pipeline = FeatureUnion(transformer_list=[
+    ("num_pipeline", num_pipeline),
+    ("cat_pipeline", cat_pipeline),
+])
+
+titanic_prepared = full_pipeline.fit_transform(train_set_pre)
+
+print(titanic_prepared)
