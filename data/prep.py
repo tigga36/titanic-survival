@@ -1,6 +1,10 @@
 import os
 import pandas as pd
 import numpy as np
+import scipy
+
+import sys
+sys.path.append('../../')
 
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -68,5 +72,3 @@ full_pipeline = FeatureUnion(transformer_list=[
 ])
 
 titanic_prepared = full_pipeline.fit_transform(train_set_pre)
-
-print(titanic_prepared)
