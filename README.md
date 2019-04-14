@@ -1,5 +1,7 @@
 # titanic-survival
-This is a simple personal project to get acquainted with general ML and constructions of models. This README is generally intended for personal note-taking.
+This is a simple personal project to get acquainted with general ML and constructions of models. This README is generally intended for personal note-taking.  
+  
+NOTE: The data and codes handled in this project are more or less tested/analyzed in a separate Jupyter Notebook. This is git is more or less a way to summarize the progress of the project.
 
 # The Dataset
 In this project I will be using the Titanic dataset taken from Kaggle (https://www.kaggle.com/c/titanic/overview) to create a binary classifier of whether a survivor survived or not depending on various attributes.
