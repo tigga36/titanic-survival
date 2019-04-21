@@ -1,7 +1,12 @@
 import tensorflow as tf
 from functools import partial
-import numpy as np
-import scipy
+
+from datetime import datetime
+import pytz
+
+now = datetime.now(tz=pytz.timezone('Asia/Tokyo')).strftime("%Y%m%d%H%M%S")
+root_logdir = "tf_logs"
+logdir = "{}/run-{}/".format(root_logdir, now)
 
 n_inputs = 9
 n_hidden1 = 200
@@ -47,7 +52,7 @@ with tf.name_scope("loss"):
     xentropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=y, logits=logits)
     loss = tf.reduce_mean(xentropy, name="loss")
 
-learning_rate = 0.0005
+learning_rate = 0.00005
 with tf.name_scope("train"):
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
     training_op = optimizer.minimize(loss)
@@ -58,3 +63,6 @@ with tf.name_scope("eval"):
 
 init = tf.global_variables_initializer()
 saver = tf.train.Saver()
+
+mse_summary = tf.summary.scalar('accuracy', accuracy)
+file_writer = tf.summary.FileWriter(logdir, tf.get_default_graph())
