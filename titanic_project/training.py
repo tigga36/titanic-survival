@@ -2,17 +2,12 @@ import scipy
 import numpy as np
 import tensorflow as tf
 import sys
-import os
 sys.path.insert(0, 'networks')
-print(os.getcwd())
 
 import datasets as data
 import densenet as net
 
 def next_batch(num, data, labels):
-    '''
-    Return a total of `num` random samples and labels.
-    '''
     idx = np.arange(0 , data.shape[0])
     np.random.shuffle(idx)
     idx = idx[:num]
@@ -47,4 +42,4 @@ with tf.Session() as sess:
             minimum_val_error = 1 - acc_val
             best_epoch = epoch
 
-    save_path = net.saver.save(sess, "./my_model_final.ckpt")
+    save_path = net.saver.save(sess, "models/model4-21_01.ckpt")
