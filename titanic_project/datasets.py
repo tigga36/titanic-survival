@@ -66,3 +66,4 @@ full_pipeline = FeatureUnion(transformer_list=[
 ])
 
 titanic_prepared = full_pipeline.fit_transform(train_set_pre)
+survived_label = train_set["Survived"]
