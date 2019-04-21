@@ -9,8 +9,7 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.pipeline import FeatureUnion
 from sklearn.base import BaseEstimator, TransformerMixin
 
-os.path.abspath(os.path.join(yourpath, os.pardir))
-TITANIC_PATH = os.path.join("../data/raw", "titanic")
+TITANIC_PATH = os.path.join(os.path.dirname(__file__), "../data/raw/titanic/")
 
 def load_titanic_data(titanic_path=TITANIC_PATH):
     csv_path = os.path.join(titanic_path,"train.csv")
