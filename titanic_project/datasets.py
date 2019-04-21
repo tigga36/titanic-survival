@@ -3,9 +3,6 @@ import pandas as pd
 import numpy as np
 import scipy
 
-import sys
-sys.path.append('../../')
-
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
@@ -15,7 +12,8 @@ from sklearn.preprocessing import CategoricalEncoder
 from sklearn.pipeline import FeatureUnion
 from sklearn.base import BaseEstimator, TransformerMixin
 
-TITANIC_PATH = os.path.join("raw", "titanic")
+os.path.abspath(os.path.join(yourpath, os.pardir))
+TITANIC_PATH = os.path.join("../data/raw", "titanic")
 
 def load_titanic_data(titanic_path=TITANIC_PATH):
     csv_path = os.path.join(titanic_path,"train.csv")
