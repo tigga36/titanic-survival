@@ -49,6 +49,10 @@ train_set_pre["Sex"] = pd.get_dummies(train_set["Sex"])
 train_set_pre["Embarked"] = pd.get_dummies(train_set["Embarked"])
 train_set_pre["Embarked"]
 
+test_set_pre = test_set.copy()
+test_set_pre["Sex"] = pd.get_dummies(test_set["Sex"])
+test_set_pre["Embarked"] = pd.get_dummies(test_set["Embarked"])
+
 num_pipeline = Pipeline([
     ('selector', DataFrameSelector(num_attribs)),
     ('imputer', SimpleImputer(missing_values=np.nan,strategy="median")),
@@ -66,4 +70,5 @@ full_pipeline = FeatureUnion(transformer_list=[
 ])
 
 titanic_prepared = full_pipeline.fit_transform(train_set_pre)
+titanic_test_prepared = full_pipeline.fit_transform(test_set_pre)
 survived_label = train_set["Survived"]
