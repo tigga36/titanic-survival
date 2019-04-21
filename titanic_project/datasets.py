@@ -1,14 +1,11 @@
 import os
 import pandas as pd
 import numpy as np
-import scipy
 
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import OrdinalEncoder
 from sklearn.preprocessing import OneHotEncoder
-from sklearn.preprocessing import CategoricalEncoder
 from sklearn.pipeline import FeatureUnion
 from sklearn.base import BaseEstimator, TransformerMixin
 
