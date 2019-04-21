@@ -30,6 +30,10 @@ with tf.Session() as sess:
             survived_label_converted = data.survived_label.values
             X_batch, y_batch = next_batch(batch_size, titanic_prepared_converted, survived_label_converted)
             X_batch = np.squeeze(X_batch)
+            if iteration % 10  == 0:
+                summary_str = net.mse_summary.eval(feed_dict={net.X: X_batch, net.y: y_batch})
+                step = epoch * (data.titanic_prepared.shape[0] // batch_size) + iteration
+                net.file_writer.add_summary(summary_str, step)
             sess.run(net.training_op, feed_dict={net.X: X_batch, net.y: y_batch})
         acc_train = net.accuracy.eval(feed_dict={net.X: X_batch, net.y: y_batch})
 
@@ -43,3 +47,5 @@ with tf.Session() as sess:
             best_epoch = epoch
 
     save_path = net.saver.save(sess, "models/model4-21_01.ckpt")
+
+net.file_writer.close()
