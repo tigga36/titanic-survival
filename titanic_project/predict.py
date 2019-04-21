@@ -24,7 +24,7 @@ test_real_prepared = data.full_pipeline.fit_transform(test_real_pre)
 test_real_prepared
 
 with tf.Session() as sess:
-    net.saver.restore(sess, "../models/model-4-21_01.ckpt")
+    net.saver.restore(sess, "./models/model4-21_01.ckpt")
     test_real_prepared_converted = scipy.sparse.csr_matrix.todense(test_real_prepared)
     X_new_scaled = np.asarray(test_real_prepared_converted)
     X_new_scaled = np.squeeze(X_new_scaled)
@@ -33,4 +33,4 @@ with tf.Session() as sess:
 
 result = pd.DataFrame(data= y_pred, index=test_real["PassengerId"], columns=None, dtype=None, copy=False)
 result.columns = ['Survived']
-result.to_csv('results.csv')
+result.to_csv('../results/results4-21_01.csv')
