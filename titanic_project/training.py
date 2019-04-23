@@ -17,13 +17,14 @@ def next_batch(num, data, labels):
     return np.asarray(data_shuffle), np.asarray(labels_shuffle)
 
 n_epochs = 100
-batch_size = 20
+batch_size = 40
 best_epoch = None
 best_model = None
-minimum_val_error = float("inf")
 
 with tf.Session() as sess:
     net.init.run()
+    acc_going_down = 0
+    max_acc = 0
     for epoch in range(n_epochs):
         for iteration in range(data.titanic_prepared.shape[0] // batch_size):
             titanic_prepared_converted = scipy.sparse.csr_matrix.todense(data.titanic_prepared)
@@ -42,10 +43,16 @@ with tf.Session() as sess:
         acc_val = net.accuracy.eval(feed_dict={net.X: X_test,
                                            net.y: Y_test})
         print(epoch, "Train accuracy:", acc_train, "Val accuracy:", acc_val)
-        if (1 - acc_val < minimum_val_error):
-            minimum_val_error = 1 - acc_val
+        if (max_acc < acc_val):
+            max_acc = acc_val
+            acc_going_down = 0
             best_epoch = epoch
-
-    save_path = net.saver.save(sess, "models/model4-21_01.ckpt")
+            save_path = net.saver.save(sess, "models/model4-23_02.ckpt")
+        else:
+            acc_going_down += 1
+            if acc_going_down == 10:
+                print("Early stop: Accuracy was going down")
+                print("Epoch was: ", best_epoch)
+                break
 
 net.file_writer.close()
