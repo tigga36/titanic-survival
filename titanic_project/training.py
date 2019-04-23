@@ -47,12 +47,15 @@ with tf.Session() as sess:
             max_acc = acc_val
             acc_going_down = 0
             best_epoch = epoch
-            save_path = net.saver.save(sess, "models/model4-23_02.ckpt")
+            save_path = net.saver.save(sess, "models/model_best_acc.ckpt")
         else:
             acc_going_down += 1
             if acc_going_down == 10:
                 print("Early stop: Accuracy was going down")
                 print("Epoch was: ", best_epoch)
+                net.saver.restore(sess, "./models/model_best_acc.ckpt")
+
+                save_path = net.saver.save(sess, "models/model_acc"+str(max_acc)+".ckpt")
                 break
 
 net.file_writer.close()
