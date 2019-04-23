@@ -16,8 +16,8 @@ def next_batch(num, data, labels):
 
     return np.asarray(data_shuffle), np.asarray(labels_shuffle)
 
-n_epochs = 100
-batch_size = 40
+n_epochs = 1000
+batch_size = 50
 best_epoch = None
 best_model = None
 
@@ -27,8 +27,9 @@ with tf.Session() as sess:
     max_acc = 0
     for epoch in range(n_epochs):
         for iteration in range(data.titanic_prepared.shape[0] // batch_size):
-            titanic_prepared_converted = scipy.sparse.csr_matrix.todense(data.titanic_prepared)
-            survived_label_converted = data.survived_label.values
+            # titanic_prepared_converted = scipy.sparse.csr_matrix.todense(data.titanic_prepared)
+            titanic_prepared_converted = (data.titanic_prepared)
+            survived_label_converted = data.train_survived_label.values
             X_batch, y_batch = next_batch(batch_size, titanic_prepared_converted, survived_label_converted)
             X_batch = np.squeeze(X_batch)
             if iteration % 10  == 0:
@@ -38,8 +39,9 @@ with tf.Session() as sess:
             sess.run(net.training_op, feed_dict={net.X: X_batch, net.y: y_batch})
         acc_train = net.accuracy.eval(feed_dict={net.X: X_batch, net.y: y_batch})
 
-        X_test = np.squeeze(scipy.sparse.csr_matrix.todense(data.titanic_test_prepared))
-        Y_test = data.test_set["Survived"].values
+        # X_test = np.squeeze(scipy.sparse.csr_matrix.todense(data.titanic_test_prepared))
+        X_test = np.squeeze((data.titanic_test_prepared))
+        Y_test = data.test_survived_label.values
         acc_val = net.accuracy.eval(feed_dict={net.X: X_test,
                                            net.y: Y_test})
         print(epoch, "Train accuracy:", acc_train, "Val accuracy:", acc_val)
@@ -50,9 +52,9 @@ with tf.Session() as sess:
             save_path = net.saver.save(sess, "models/model_best_acc.ckpt")
         else:
             acc_going_down += 1
-            if acc_going_down == 10:
+            if acc_going_down == 100:
                 print("Early stop: Accuracy was going down")
-                print("Epoch was: ", best_epoch)
+                print("Epoch was:", best_epoch, "with accuracy of", max_acc)
                 net.saver.restore(sess, "./models/model_best_acc.ckpt")
 
                 save_path = net.saver.save(sess, "models/model_acc"+str(max_acc)+".ckpt")

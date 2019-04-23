@@ -47,7 +47,6 @@ cat_attribs = ["Sex", "Embarked"]
 train_set_pre = train_set.copy()
 train_set_pre["Sex"] = pd.get_dummies(train_set["Sex"])
 train_set_pre["Embarked"] = pd.get_dummies(train_set["Embarked"])
-train_set_pre["Embarked"]
 
 test_set_pre = test_set.copy()
 test_set_pre["Sex"] = pd.get_dummies(test_set["Sex"])
@@ -61,7 +60,7 @@ num_pipeline = Pipeline([
 
 cat_pipeline = Pipeline([
     ('selector', DataFrameSelector(cat_attribs)),
-    ('cat_encoder', OneHotEncoder()),
+    # ('cat_encoder', OneHotEncoder()),
 ])
 
 full_pipeline = FeatureUnion(transformer_list=[
@@ -69,6 +68,10 @@ full_pipeline = FeatureUnion(transformer_list=[
     ("cat_pipeline", cat_pipeline),
 ])
 
+train_survived_label = train_set_pre["Survived"]
+test_survived_label = test_set_pre["Survived"]
+train_set_pre = train_set_pre.drop(['PassengerId', 'Survived', 'Name', 'Ticket', 'Cabin'], axis=1)
+test_set_pre = test_set_pre.drop(['PassengerId', 'Survived', 'Name', 'Ticket', 'Cabin'], axis=1)
+
 titanic_prepared = full_pipeline.fit_transform(train_set_pre)
 titanic_test_prepared = full_pipeline.fit_transform(test_set_pre)
-survived_label = train_set["Survived"]
