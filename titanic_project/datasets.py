@@ -28,18 +28,23 @@ def split_train_test(data, test_ratio):
     train_indicies = shuffled_indicies[test_set_size:]
     return data.iloc[train_indicies], data.iloc[test_indicies]
 
+
 train_set, test_set = split_train_test(titanic, 0.2)
 
 #============================================================
 #Start cleaning test data
 
+
 class DataFrameSelector(BaseEstimator, TransformerMixin):
     def __init__(self, attribute_names):
         self.attribute_names=attribute_names
+
     def fit(self, X, y=None):
         return self
+
     def transform(self, X):
         return X[self.attribute_names].values
+
 
 num_attribs = ["Pclass", "Age", "SibSp", "Parch", "Fare"]
 cat_attribs = ["Sex", "Embarked"]
