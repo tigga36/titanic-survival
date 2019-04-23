@@ -1,4 +1,5 @@
 import tensorflow as tf
+from tensorflow import keras
 from functools import partial
 
 from datetime import datetime
@@ -24,7 +25,6 @@ y = tf.placeholder(tf.int64, shape=(None), name="y")
 training = tf.placeholder_with_default(False, shape=(), name='training')
 
 dropout_rate = 0.8
-X_drop = tf.layers.dropout(X, dropout_rate, training=training)
 
 scale = 0.001
 he_init = tf.contrib.layers.variance_scaling_initializer()
@@ -33,7 +33,7 @@ my_batch_norm = partial(tf.layers.batch_normalization, training=training, moment
 my_batch_drop = partial(tf.layers.dropout, dropout_rate, training=training)
 
 with tf.name_scope("dnn1"):
-    hidden1_pre = my_layer_pre(X_drop, n_hidden1, name="hidden1")
+    hidden1_pre = my_layer_pre(X, n_hidden1, name="hidden1")
     hidden1_batch = my_batch_norm(hidden1_pre)
     hidden1_drop = tf.layers.dropout(hidden1_batch, dropout_rate, training=training)
     hidden1_act = tf.nn.elu(hidden1_drop)
