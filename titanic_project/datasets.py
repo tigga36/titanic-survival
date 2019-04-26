@@ -4,6 +4,7 @@ import numpy as np
 
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.pipeline import FeatureUnion
@@ -16,6 +17,52 @@ def load_titanic_data(titanic_path=TITANIC_PATH):
     return pd.read_csv(csv_path)
 
 titanic = load_titanic_data()
+
+#checking for missing values
+
+#MODIFICATIONS, ATTRIBUTE COMBINATIONS
+
+# titanic["Toddler"] = np.where(titanic["Age"]<=5, 1, 0)
+titanic["YoungMale"] = np.where((titanic["Sex"]=='male')&(titanic["Age"]>=15)&(titanic["Age"]<=35), 1, 0)
+titanic["AgeRange"] = 1
+titanic["AgeRange"][(titanic["Age"] > 60)] = 2
+titanic["AgeRange"][(titanic["Age"] < 15)] = 0
+titanic["Fam"] = titanic["SibSp"] + titanic["Parch"]
+titanic["FareRange"] = 0
+titanic["FareRange"][(titanic["Fare"] > 50)] = 1
+titanic["FareRange"][(titanic["Fare"] > 100)] = 2
+titanic["FareRange"][(titanic["Fare"] > 150)] = 3
+titanic["FareRange"][(titanic["Fare"] > 200)] = 4
+
+TitleDict = {
+    "Ms": "Mrs",
+    "Mr": "Mr",
+    "Mrs": "Mrs",
+    "Miss": "Miss"
+}
+
+def get_titles():
+    titanic['Title'] = titanic['Name'].map(lambda name: name.split(',')[1].split('.')[0].strip())
+
+    titanic['Title'] = titanic.Title.map(TitleDict)
+    return titanic
+
+
+titanic = get_titles()
+
+
+def process_names():
+    global titanic
+
+    titles_dummies = pd.get_dummies(titanic['Title'], prefix='Title')
+    titanic = pd.concat([titanic, titles_dummies], axis=1)
+
+    titanic.drop('Title', axis=1, inplace=True)
+
+    return titanic
+
+
+titanic = process_names()
 
 #random seed
 np.random.seed(21)
@@ -46,8 +93,8 @@ class DataFrameSelector(BaseEstimator, TransformerMixin):
         return X[self.attribute_names].values
 
 
-num_attribs = ["Pclass", "Age", "SibSp", "Parch", "Fare"]
-cat_attribs = ["Sex", "Embarked"]
+num_attribs = ["Pclass", "AgeRange", "FareRange", "Fam"]
+cat_attribs = ["Sex", "Title_Miss", "Title_Mrs"]
 
 train_set_pre = train_set.copy()
 train_set_pre["Sex"] = pd.get_dummies(train_set["Sex"])
@@ -61,6 +108,7 @@ num_pipeline = Pipeline([
     ('selector', DataFrameSelector(num_attribs)),
     ('imputer', SimpleImputer(missing_values=np.nan,strategy="median")),
     ('std_scaler', StandardScaler())
+    # ('minmax_scaler', MinMaxScaler())
 ])
 
 cat_pipeline = Pipeline([
@@ -75,8 +123,8 @@ full_pipeline = FeatureUnion(transformer_list=[
 
 train_survived_label = train_set_pre["Survived"]
 test_survived_label = test_set_pre["Survived"]
-train_set_pre = train_set_pre.drop(['PassengerId', 'Survived', 'Name', 'Ticket', 'Cabin'], axis=1)
-test_set_pre = test_set_pre.drop(['PassengerId', 'Survived', 'Name', 'Ticket', 'Cabin'], axis=1)
+train_set_pre = train_set_pre.drop(['PassengerId', 'Fare', 'Survived', 'Name', 'Ticket', 'Cabin', 'Age', 'Parch', 'SibSp', 'Embarked', 'Title_Mr'], axis=1)
+test_set_pre = test_set_pre.drop(['PassengerId', 'Fare', 'Survived', 'Name', 'Ticket', 'Cabin', 'Age', 'Parch', 'SibSp', 'Embarked', 'Title_Mr'], axis=1)
 
 titanic_prepared = full_pipeline.fit_transform(train_set_pre)
 titanic_test_prepared = full_pipeline.fit_transform(test_set_pre)
